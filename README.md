@@ -54,14 +54,23 @@ out of this mess.)
 
 Spoiler: Unlike Jest,
 
-> :white_check_mark:&ensp; I would recommend mocking/stubbing *as little as
-  possible* to maximize the possibility that, if/when (read: when) we
-  accidentally cause collisions, races, loops, or missed or duplicate effects,
-  they’ll show up in failed or flaky tests rather than in production.
+<div class="callout success">
+  <p>
+    I would recommend mocking/stubbing <em>as little as possible</em> to
+    maximize the possibility that, if/when (read: when) we accidentally cause
+    collisions, races, loops, or missed or duplicate effects, they’ll show up in
+    failed or flaky tests rather than in production.
+  </p>
+</div>
 
-> :warning:&ensp; Aside: In frontend testing, a flaky test is both *de rigueur* and
-  not to be tolerated. If it fails *once*, it is a failed test. Even if it’s
-  challenging to reproduce, it’s not a fluke, it’s indicating a real oversight.
+<div class="callout warn">
+  <p>
+    Aside: In frontend testing, a flaky test is both <i>de rigueur</i> and not
+    to be tolerated. If it fails <em>once</em>, it is a failed test.  Even if
+    it’s challenging to reproduce, it’s not a fluke, it’s indicating a real
+    oversight.
+  </p>
+</div>
 
 Anyway, let’s jump into an example app and talk about common side effect testing
 scenarios.
@@ -171,8 +180,12 @@ describe("aliceEffect()", () => {
 });
 ```
 
-> :white_check_mark:&ensp; My testing rule of thumb has a second half: mock/stub as
-  little as possible, but **spy as much as you like**.
+<div class="callout success">
+  <p>
+    My testing rule of thumb has a second half: mock/stub as little as possible,
+    but <strong>spy as much as you like</strong>.
+  </p>
+</div>
 
 Sinon is a nice little library for unobtrusive sensing and mocking. While Jest
 does much of this out of the box, it’s pretty clunky, so we’ll use Sinon as long
@@ -181,32 +194,49 @@ as it’s already in our project (which it is!).
 Here (above) we set up a spy for the effect we expect—the methods we expect our
 function under test to call.
 
-> :information_source:&ensp; For clarity: A `spy` is a wrapper for a function (or
-  object) that records information about calls made to it. In most frameworks,
-  the function is replaced with a dummy or `stub`, sometimes with the option to
-  "call through" to the original. In Jest and Sinon, the original function
-  behavior is maintained (by default).
+<div class="callout info">
+  <p>
+    For clarity: A <code>spy</code> is a wrapper for a function (or object) that
+    records information about calls made to it. In most frameworks, the function
+    is replaced with a dummy or <code>stub</code>, sometimes with the option to
+    "call through" to the original. In Jest and Sinon, the original function
+    behavior is maintained (by default).
+  </p>
+ </div>
 
 We stub rather than spy on `debug()` because we don’t actually want all that
 console noise when we run hundreds of tests.
 
-> :information_source:&ensp; In Sinon, a `stub` is a dummy replacement for a function.
-  It records all the same information that a spy does, but it also prevents the
-  original function from running. Stubs accept all arguments<sup>:asterisk:</sup>
-  and return nothing by default, but you can define any behavior that calling
-  functions might expect.  In Jest, these are called `mock`s.
->
-> <small>:asterisk:&ensp; In TypeScript, Sinon stubs accept the same arguments as the
-  original function, and you’re expected define the return type to match as
-  well.</small>
+<div class="callout info">
+  <p>
+    In Sinon, a <code>stub</code> is a dummy replacement for a function.  It
+    records all the same information that a spy does, but it also prevents the
+    original function from running. Stubs accept all arguments<sup>*️⃣</sup> and
+    return nothing by default, but you can define any behavior that calling
+    functions might expect.  In Jest, these are called <code>mock</code>s.
+  </p>
+  <p>
+    <small>*️⃣&ensp; In TypeScript, Sinon stubs accept the same arguments
+    as the original function, and you’re expected define the return type to
+    match as well.</small>
+  </p>
+</div>
 
-> :memo:&ensp; Sinon’s `mock`s are stubs that also have expectations attached to how
-  they're used. This means they're prescriptively tied to implementation
-  details, which is a specialty use case we won't get into here.
+<div class="callout note">
+  <p>
+    Sinon’s <code>mock</code>s are stubs that also have expectations attached to
+    how they're used. This means they're prescriptively tied to implementation
+    details, which is a specialty use case we won't get into here.
+  </p>
+</div>
 
-> :warning:&ensp; It probably goes without saying that Sinon’s and Jest’s sensing,
-  expectation/assertion, and matching classes are not interchangeable. However,
-  there are some test utility libraries that let you mix them.
+<div class="callout warn">
+  <p>
+    It probably goes without saying that Sinon’s and Jest’s sensing,
+    expectation/assertion, and matching classes are not interchangeable.
+    However, there are some test utility libraries that let you mix them.
+  </p>
+</div>
 
 Aaanyway, we then call the handler and then check for the expected effects.
 These effects aren’t stateful, so we can’t look for evidence that they happened;
@@ -318,10 +348,15 @@ But it's just as well—we don't want these spies restored between each test,
 anyway. So in teardown, we'll explicitly call `resetHistory()` to clear their
 call history between tests.
 
-> <small>:asterisk:&ensp; We *could* memoize them to this module's scope (i.e.
-  `this` inside an arrow function callback passed to `jest.mock()` is the module
-  scope), but it's really ugly and annoying to do in TypeScript and I don't
-  wanna. Guess it’s TS’s way of discouraging too-clever JS shenanigans.</small>
+<div class="callout">
+  <p>
+    <small>*️⃣&ensp; We <em>could</em> memoize them to this module's
+    scope (i.e.  <code>this</code> inside an arrow function callback passed to
+    <code>jest.mock()</code> is the module scope), but it's really ugly and
+    annoying to do in TypeScript and I don't wanna. Guess it’s TS’s way of
+    discouraging too-clever JS shenanigans.</small>
+  </p>
+</div>
 
 Now, let’s add the test:
 
@@ -396,14 +431,17 @@ To finish up the test, we tell the clock to advance time, flushing all the
 scheduled asynchronous calls. This includes our events bubbling, our listeners
 hearing and our handlers handling.
 
-> :memo:&ensp; Jest also has fake timers and they function much the same.
->
-> If you find you have to wait an arbitrary amount of time for things not tied
-  to job scheduling (animations, cascading events, the (dis)appearance of
-  elements), `@testing-library/dom` has utilities such as `waitFor()`, which
-  will retry any code you give it until it doesn’t throw. For example:
->
-> `await waitFor(() => { expect(appearingElementQuery).toBeTruthy(); });`
+<div class="callout note">
+  <p>Jest also has fake timers and they function much the same.</p>
+  <p>
+    If you find you have to wait an arbitrary amount of time for things not tied
+    to job scheduling (animations, cascading events, the (dis)appearance of
+    elements), <code>@testing-library/dom</code> has utilities such as
+    <code>waitFor()</code>, which will retry any code you give it until it
+    doesn’t throw. For example:
+  </p>
+  <p><pre><code>await waitFor(() => { expect(appearingElementQuery).toBeTruthy(); });</code></pre></p>
+</div>
 
 Finally, we assert our spy saw what we expected it to see. While TypeScript
 remembers `aliceEffect()`’s signature as the way we wrote it, that was at
@@ -546,9 +584,13 @@ describe("events", () => {
 Notice we have to update the mocked module to return the spy-wrapped
 `bobEffect()`.
 
-> :memo:&emsp; I believe it’s a matter of taste how much repetition to extract
-  into setup and teardown blocks. There are pros and cons to either extreme.
-  Here, I’m DRYing the tests out to highlight repetition and save space.
+<div class="callout note">
+  <p>
+    I believe it’s a matter of taste how much repetition to extract into setup
+    and teardown blocks. There are pros and cons to either extreme. Here, I’m
+    DRYing the tests out to highlight repetition and save space.
+  </p>
+</div>
 
 All the tests pass and everything looks good. We could continue on like this
 indefinitely.
@@ -600,7 +642,11 @@ which to sense `bobEffect` as a dependency of `aliceEffect` because they’re
 declared in the same module. The spied-on `aliceEffect()` calls the real,
 locally defined `bobEffect()`, not the spy. We need another seam.
 
-**But why should one change an implementation just to make it easier to test?**
+<div class="question">
+  <p>
+    But why should one change an implementation just to make it easier to test?
+  </p>
+</div>
 
 I won’t advocate for it in all situations, but a case of inadequate test seams
 at least invites us to reconsider our implementation. Indeed, this points to
@@ -669,10 +715,14 @@ Verbose, but it gets the job done. There are many, many perfectly acceptable
 ways to test this. It’s not really relevant to this article, but I thought I’d
 include it as an example of what might constitute adequate coverage.
 
-> :warning:&ensp; The handler configuration may be defined in an array, but this
-  doesn’t determine their order of execution, only their order of attachment to
-  the `window`. Thus **we can’t safely make any assertions about the order of
-  calls** to `stubC`.
+<div class="callout warn">
+  <p>
+    The handler configuration may be defined in an array, but this doesn’t
+    determine their order of execution, only their order of attachment to the
+    <code>window</code>. Thus <strong>we can’t safely make any assertions about
+    the order of calls</strong> to <code>stubC</code>.
+  </p>
+</div>
 
 
 ### Wrapping it all up
@@ -787,10 +837,18 @@ what we should test.
 
 The moral of the story is this:
 
-> :x:&ensp; Don’t test that your code **says what you told it** to say.
+<div class="callout error">
+  <p>
+    Don’t test that your code <strong>says what you told it</strong> to say.
+  </p>
+</div>
 
-> :white_check_mark:&ensp; Test that your code **does what you intend** it to
-  do. (And falsifiably so!)
+<div class="callout success">
+  <p>
+    Test that your code <strong>does what you intend</strong> it to do. (And
+    falsifiably so!)
+  </p>
+</div>
 
 ---
 
@@ -799,3 +857,76 @@ The moral of the story is this:
 <sup><a id="1">1</a></sup> Wikimedia Foundation. (2022, August 17). _Side effect
 (computer science)_.  Wikipedia. Retrieved December 13, 2022, from
 https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+
+<style>
+  .callout,
+  .question {
+    margin: 1em 0em;
+    padding-bottom: 0.25em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 1em;
+  }
+  .callout {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.25em;
+  }
+  .question {
+    font-weight: bold;
+  }
+  .callout p:first-child,
+  .question p:first-child {
+    position: relative;
+  }
+  .callout p:first-child::before,
+  .question p:first-child::before {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    font-size: 150%;
+    left: -1.5em;
+    position: absolute;
+    top: 0;
+  }
+  .error,
+  .info,
+  .note,
+  .question,
+  .success,
+  .warn {
+    padding-left: 3.25em;
+  }
+  .error {
+    background-color: rgba(252, 92, 101, 0.25); /* fusion red */
+  }
+  .info {
+    background-color: rgba(69, 170, 242, 0.25); /* high blue */
+    }
+  .note {
+    background-color: rgba(165, 94, 234, 0.25); /* lighter purple */
+  }
+  .success {
+    background-color: rgba(38, 222, 129, 0.25); /* reptile green */
+  }
+  .warn {
+    background-color: rgba(254, 211, 48, 0.25); /* flirtatious */
+  }
+  .error p:first-child::before {
+    content: "❌";
+  }
+  .info p:first-child::before {
+    content: "ℹ️";
+  }
+  .note p:first-child::before {
+    content: "📝";
+  }
+  .question p:first-child::before {
+    content: "❓";
+  }
+  .success p:first-child::before {
+    content: "✅";
+  }
+  .warn p:first-child::before {
+    content: "⚠️";
+  }
+</style>
